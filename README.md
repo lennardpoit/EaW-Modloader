@@ -1,4 +1,4 @@
-﻿# EaW Mod-Launcher
+# EaW Mod-Launcher
 
 Ein einfacher Mod-Launcher für **Star Wars: Empire at War – Forces of Corruption** (Steam-Version).
 Alle abonnierten Workshop-Mods erscheinen als Kacheln mit Vorschaubild. Ein Klick startet das Spiel mit der
@@ -15,6 +15,7 @@ gewählten Mod, ganz ohne Rechtsklick → Eigenschaften → Startoptionen in Ste
 - **Offline-fähig:** Namen und Vorschaubilder werden lokal zwischengespeichert.
 - Startet Steam bei Bedarf automatisch im Hintergrund.
 - **Automatische Updates:** Zeigt neue Versionen an und installiert sie mit einem Klick.
+- **Englisch und Deutsch:** Umschalten per Flagge oben rechts, Standard ist Englisch.
 
 ## Download
 
@@ -108,7 +109,7 @@ need to edit launch options in Steam. It also suggests popular Workshop mods, le
 
 **Requirements:** Windows 10/11 (64-bit), Steam, *STAR WARS™ Empire at War: Gold Pack*.
 
-The user interface is currently in German. Unofficial fan project, not affiliated with Lucasfilm, Disney,
+The interface is available in English (default) and German – switch via the flags in the top right corner. Unofficial fan project, not affiliated with Lucasfilm, Disney,
 LucasArts, Petroglyph or Valve. The program icon is the official Steam icon of the game (© Lucasfilm Ltd.); no
 other game assets are included, logo and emblem are read from your local game installation at runtime.
 Code licensed under MIT.

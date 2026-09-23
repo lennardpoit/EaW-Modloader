@@ -78,9 +78,9 @@ public static class UpdateService
     public static async Task InstallAsync(UpdateInfo update, IProgress<double> progress)
     {
         if (string.IsNullOrEmpty(update.DownloadUrl))
-            throw new InvalidOperationException("Dieses Release enthält keine EaWModLauncher.exe.");
+            throw new InvalidOperationException(Loc.T("ErrNoAsset"));
 
-        var exe = Environment.ProcessPath ?? throw new InvalidOperationException("Programmpfad unbekannt.");
+        var exe = Environment.ProcessPath ?? throw new InvalidOperationException(Loc.T("ErrNoPath"));
         var tmp = exe + ".download";
         var old = exe + ".old";
 
@@ -111,7 +111,7 @@ public static class UpdateService
         if (!complete || !isExe)
         {
             File.Delete(tmp);
-            throw new InvalidOperationException("Der Download ist unvollständig oder beschädigt.");
+            throw new InvalidOperationException(Loc.T("ErrDownloadCorrupt"));
         }
 
         // 3. Austauschen – bei Fehlern den alten Zustand wiederherstellen

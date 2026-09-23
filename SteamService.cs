@@ -21,7 +21,7 @@ public static class SteamService
         return list.Count > 0
             ? list[0]
             : throw new InvalidOperationException(
-                $"Das Workshop-Item {id} wurde nicht gefunden (falsche ID, privat oder gelöscht).");
+                Loc.T("ErrItemNotFound", id));
     }
 
     /// <summary>Fragt mehrere Items in einem Aufruf ab. Nicht gefundene Items fehlen im Ergebnis.</summary>
@@ -198,8 +198,8 @@ public static class SteamService
         if (IsSteamReady()) return;
 
         var steamExe = FindSteamExe()
-            ?? throw new InvalidOperationException("Steam wurde auf diesem PC nicht gefunden.");
-        progress?.Report("Steam wird gestartet – warte auf Anmeldung …");
+            ?? throw new InvalidOperationException(Loc.T("ErrSteamNotFound"));
+        progress?.Report(Loc.T("SteamStarting"));
         if (Process.GetProcessesByName("steam").Length == 0)
             Process.Start(new ProcessStartInfo(steamExe, "-silent") { UseShellExecute = false });
 
@@ -208,7 +208,7 @@ public static class SteamService
         {
             if (DateTime.UtcNow > deadline)
                 throw new InvalidOperationException(
-                    "Steam ist nicht bereit (nicht angemeldet?). Bitte Steam öffnen, anmelden und erneut versuchen.");
+                    Loc.T("ErrSteamNotReady"));
             await Task.Delay(500);
         }
         await Task.Delay(3000); // Steam kurz Zeit geben, die Workshop-Dienste hochzufahren.
@@ -223,11 +223,11 @@ public static class SteamService
     public static async Task LaunchForcesOfCorruptionAsync(int appId, string launchOptions, IProgress<string>? progress = null)
     {
         var gameDir = FindGameDir(appId)
-            ?? throw new InvalidOperationException("Die Installation von Empire at War wurde in keiner Steam-Bibliothek gefunden.");
+            ?? throw new InvalidOperationException(Loc.T("ErrGameNotFound"));
         var focDir = Path.Combine(gameDir, "corruption");
         var exe = Path.Combine(focDir, "StarWarsG.exe");
         if (!File.Exists(exe))
-            throw new InvalidOperationException($"Forces of Corruption wurde nicht gefunden:\n{exe}");
+            throw new InvalidOperationException(Loc.T("ErrFocNotFound", exe));
 
         await EnsureSteamRunningAsync(progress);
 

@@ -12,7 +12,7 @@ namespace EaWModLauncher;
 
 public partial class MainWindow : Window
 {
-    private const string ReadyText = "Bereit. Klick auf eine Kachel startet die Mod, Rechtsklick für weitere Optionen.";
+    private static string ReadyText => Loc.T("Ready");
 
     private readonly LauncherData _data;
     private readonly ObservableCollection<ModEntry> _mods;
@@ -23,9 +23,12 @@ public partial class MainWindow : Window
 
     public MainWindow()
     {
-        InitializeComponent();
-
         _data = ModStore.Load();
+        Loc.SetLanguage(_data.Language); // Standard: Englisch
+
+        InitializeComponent();
+        UpdateFlagButtons();
+        SetStatus(ReadyText);
         _mods = new ObservableCollection<ModEntry>(_data.Mods);
         foreach (var mod in _mods)
             mod.Preview = ModStore.LoadImage(mod.ImageFile);
@@ -81,8 +84,7 @@ public partial class MainWindow : Window
         _update = await UpdateService.CheckAsync();
         if (_update == null) return;
 
-        UpdateText.Text = $"Neue Version {_update.Version.ToString(3)} verfügbar " +
-                          $"(installiert: {UpdateService.CurrentVersion.ToString(3)}).";
+        UpdateText.Text = UpdateAvailableText();
         UpdateButton.Visibility = _update.DownloadUrl.Length > 0 ? Visibility.Visible : Visibility.Collapsed;
         UpdateBanner.Visibility = Visibility.Visible;
     }
@@ -96,17 +98,16 @@ public partial class MainWindow : Window
         try
         {
             await UpdateService.InstallAsync(_update,
-                new Progress<double>(p => UpdateText.Text = $"Lade Version {version} herunter … {p:P0}"));
-            UpdateText.Text = $"Version {version} installiert – Neustart …";
+                new Progress<double>(p => UpdateText.Text = Loc.T("UpdateDownloading", version, p)));
+            UpdateText.Text = Loc.T("UpdateInstalled", version);
             Application.Current.Shutdown();
         }
         catch (Exception ex)
         {
-            UpdateText.Text = $"Neue Version {version} verfügbar.";
+            UpdateText.Text = UpdateAvailableText();
             UpdateButton.IsEnabled = true;
             UpdateDismissButton.IsEnabled = true;
-            if (Ask($"Das automatische Update ist fehlgeschlagen:\n{ex.Message}\n\n" +
-                    "Download-Seite im Browser öffnen, um die neue Version von Hand herunterzuladen?"))
+            if (Ask(Loc.T("UpdateFailed", ex.Message)))
                 UpdateService.OpenPage(_update.PageUrl);
         }
     }
@@ -119,6 +120,36 @@ public partial class MainWindow : Window
     private void UpdateDismiss_Click(object sender, RoutedEventArgs e) =>
         UpdateBanner.Visibility = Visibility.Collapsed;
 
+    private string UpdateAvailableText() =>
+        Loc.T("UpdateAvailable", _update?.Version.ToString(3) ?? "", UpdateService.CurrentVersion.ToString(3));
+
+    // ---------- Sprache ----------
+
+    private void LangEn_Click(object sender, RoutedEventArgs e) => SwitchLanguage("en");
+
+    private void LangDe_Click(object sender, RoutedEventArgs e) => SwitchLanguage("de");
+
+    private void SwitchLanguage(string language)
+    {
+        if (Loc.Language == language) return;
+        Loc.SetLanguage(language);   // XAML-Texte aktualisieren sich über die Bindungen
+        _data.Language = Loc.Language;
+        Persist();
+
+        // Texte, die im Code gesetzt werden
+        foreach (var entry in AllEntries) entry.RefreshTexts();
+        RebuildSuggestions();
+        if (_update != null && UpdateButton.IsEnabled) UpdateText.Text = UpdateAvailableText();
+        UpdateFlagButtons();
+        SetStatus(ReadyText);
+    }
+
+    private void UpdateFlagButtons()
+    {
+        FlagEn.Tag = Loc.Language == "en" ? "active" : null;
+        FlagDe.Tag = Loc.Language == "de" ? "active" : null;
+    }
+
     /// <summary>Nach dem Wechsel zurück ins Fenster prüfen, ob inzwischen Mods abonniert wurden.</summary>
     private async void Window_Activated(object? sender, EventArgs e)
     {
@@ -127,8 +158,8 @@ public partial class MainWindow : Window
         if (added > 0)
         {
             SetStatus(added == 1
-                ? "1 neu abonnierte Mod wurde zu „Meine Mods“ hinzugefügt."
-                : $"{added} neu abonnierte Mods wurden zu „Meine Mods“ hinzugefügt.");
+                ? Loc.T("SubsAddedOne")
+                : Loc.T("SubsAddedMany", added));
             await LoadMissingDetailsAsync();
         }
     }
@@ -190,7 +221,7 @@ public partial class MainWindow : Window
         foreach (var s in visible) _suggestions.Add(s);
 
         int hidden = _data.HiddenSuggestions.Count(Suggestions.Contains);
-        ShowHiddenButton.Content = $"Ausgeblendete anzeigen ({hidden})";
+        ShowHiddenButton.Content = Loc.T("ShowHidden", hidden);
         ShowHiddenButton.Visibility = hidden > 0 ? Visibility.Visible : Visibility.Collapsed;
         SuggestionHeader.Visibility = visible.Count > 0 || hidden > 0 ? Visibility.Visible : Visibility.Collapsed;
         UpdateCounts();
@@ -199,7 +230,7 @@ public partial class MainWindow : Window
     private void UpdateCounts()
     {
         OwnEmptyHint.Visibility = _mods.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
-        CountText.Text = $"{_mods.Count} eigene · {_suggestions.Count} vorgeschlagen · v{UpdateService.CurrentVersion.ToString(3)}";
+        CountText.Text = Loc.T("Counts", _mods.Count, _suggestions.Count, UpdateService.CurrentVersion.ToString(3));
     }
 
     private bool _loadingDetails, _detailsRequested;
@@ -226,7 +257,7 @@ public partial class MainWindow : Window
                     .ToList();
                 if (ids.Count == 0) break;
 
-                SetStatus("Lade Namen und Bilder aus dem Steam Workshop …");
+                SetStatus(Loc.T("LoadingDetails"));
                 var details = await SteamService.GetDetailsAsync(ids);
                 foreach (var d in details)
                 {
@@ -241,7 +272,7 @@ public partial class MainWindow : Window
         }
         catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
         {
-            SetStatus("Namen und Bilder konnten nicht vom Steam Workshop geladen werden (offline?). Beim nächsten Start wird es erneut versucht.");
+            SetStatus(Loc.T("DetailsFailed"));
         }
         finally
         {
@@ -304,7 +335,7 @@ public partial class MainWindow : Window
         }
         catch (Exception ex)
         {
-            ShowError("Die Mod-Liste konnte nicht gespeichert werden:\n" + ex.Message);
+            ShowError(Loc.T("SaveFailed", ex.Message));
         }
     }
 
@@ -334,13 +365,12 @@ public partial class MainWindow : Window
         var id = SteamService.ParseModId(ModInput.Text);
         if (id == null)
         {
-            ShowError("Bitte eine gültige Workshop-ID (nur Ziffern) oder einen Workshop-Link eingeben.\n\n" +
-                      "Beispiel: 1125571106 oder https://steamcommunity.com/sharedfiles/filedetails/?id=1125571106");
+            ShowError(Loc.T("InvalidId"));
             return;
         }
         if (_mods.Any(m => m.Id == id))
         {
-            ShowError($"Die Mod {id} ist bereits in der Liste.");
+            ShowError(Loc.T("AlreadyInList", id));
             return;
         }
 
@@ -353,7 +383,7 @@ public partial class MainWindow : Window
         }
 
         AddButton.IsEnabled = false;
-        SetStatus($"Lade Informationen zu Mod {id} vom Steam Workshop …");
+        SetStatus(Loc.T("LoadingMod", id));
         try
         {
             var entry = new ModEntry { Id = id, Title = $"Mod {id}" };
@@ -361,9 +391,9 @@ public partial class MainWindow : Window
             {
                 var details = await SteamService.GetDetailsAsync(id);
                 if (details.ConsumerAppId != 0 && details.ConsumerAppId != _data.AppId &&
-                    !Ask($"„{details.Title}“ gehört laut Steam nicht zu Empire at War (App {details.ConsumerAppId}).\n\nTrotzdem hinzufügen?"))
+                    !Ask(Loc.T("WrongGame", details.Title, details.ConsumerAppId)))
                 {
-                    SetStatus("Hinzufügen abgebrochen.");
+                    SetStatus(Loc.T("AddCancelled"));
                     return;
                 }
                 entry.Title = details.Title;
@@ -371,10 +401,9 @@ public partial class MainWindow : Window
             }
             catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
             {
-                if (!Ask($"Der Steam Workshop ist gerade nicht erreichbar:\n{ex.Message}\n\n" +
-                         "Mod trotzdem ohne Namen und Bild hinzufügen? (Später per Rechtsklick → „aktualisieren“ nachladen.)"))
+                if (!Ask(Loc.T("WorkshopOffline", ex.Message)))
                 {
-                    SetStatus("Hinzufügen abgebrochen.");
+                    SetStatus(Loc.T("AddCancelled"));
                     return;
                 }
             }
@@ -386,15 +415,15 @@ public partial class MainWindow : Window
             RebuildSuggestions();
             ModInput.Clear();
 
-            var status = $"„{entry.Title}“ hinzugefügt.";
+            var status = Loc.T("Added", entry.Title);
             if (!entry.IsDownloaded)
-                status += " Hinweis: Die Mod ist noch nicht heruntergeladen – bitte im Workshop abonnieren.";
+                status += Loc.T("AddedNotDownloaded");
             SetStatus(status);
         }
         catch (Exception ex)
         {
             ShowError(ex.Message);
-            SetStatus("Hinzufügen fehlgeschlagen.");
+            SetStatus(Loc.T("AddFailed"));
         }
         finally
         {
@@ -416,7 +445,7 @@ public partial class MainWindow : Window
         });
         Persist();
         RebuildSuggestions();
-        SetStatus($"„{suggestion.Title}“ zu „Meine Mods“ hinzugefügt.");
+        SetStatus(Loc.T("Adopted", suggestion.Title));
     }
 
     /// <summary>Lädt das Vorschaubild herunter und speichert es lokal. Fehler sind nicht fatal.</summary>
@@ -456,7 +485,7 @@ public partial class MainWindow : Window
         if (!mod.IsDownloaded)
         {
             SteamService.OpenWorkshopPage(mod.Id);
-            SetStatus($"Workshop-Seite von „{mod.Title}“ geöffnet. Nach dem Abonnieren und Herunterladen startet ein Klick die Mod.");
+            SetStatus(Loc.T("WorkshopOpened", mod.Title));
             return;
         }
 
@@ -471,10 +500,10 @@ public partial class MainWindow : Window
 
     private Task StartModAsync(ModEntry mod) =>
         StartGameAsync($"STEAMMOD={mod.Id}",
-            $"Starte Forces of Corruption mit „{mod.Title}“ (STEAMMOD={mod.Id}) …");
+            Loc.T("Launching", mod.Title, mod.Id));
 
     private async void Vanilla_Click(object sender, RoutedEventArgs e) =>
-        await StartGameAsync("", "Starte Forces of Corruption ohne Mod …");
+        await StartGameAsync("", Loc.T("LaunchingVanilla"));
 
     private async Task StartGameAsync(string launchOptions, string status)
     {
@@ -488,8 +517,8 @@ public partial class MainWindow : Window
         }
         catch (Exception ex)
         {
-            ShowError("Forces of Corruption konnte nicht gestartet werden:\n" + ex.Message);
-            SetStatus("Start fehlgeschlagen.");
+            ShowError(Loc.T("LaunchFailed", ex.Message));
+            SetStatus(Loc.T("LaunchFailedStatus"));
         }
         finally
         {
@@ -512,7 +541,7 @@ public partial class MainWindow : Window
         if (!_data.HiddenSuggestions.Contains(mod.Id)) _data.HiddenSuggestions.Add(mod.Id);
         Persist();
         RebuildSuggestions();
-        SetStatus($"Vorschlag „{mod.Title}“ ausgeblendet.");
+        SetStatus(Loc.T("Hidden", mod.Title));
     }
 
     private void ShowHidden_Click(object sender, RoutedEventArgs e)
@@ -520,25 +549,25 @@ public partial class MainWindow : Window
         _data.HiddenSuggestions.Clear();
         Persist();
         RebuildSuggestions();
-        SetStatus("Alle Vorschläge werden wieder angezeigt.");
+        SetStatus(Loc.T("AllShown"));
     }
 
     private async void MenuRefresh_Click(object sender, RoutedEventArgs e)
     {
         if (EntryOf(sender) is not { } mod) return;
-        SetStatus($"Aktualisiere „{mod.Title}“ …");
+        SetStatus(Loc.T("Refreshing", mod.Title));
         try
         {
             var details = await SteamService.GetDetailsAsync(mod.Id);
             mod.Title = details.Title;
             await TryDownloadImage(mod, details.PreviewUrl);
             Persist();
-            SetStatus($"„{mod.Title}“ aktualisiert.");
+            SetStatus(Loc.T("Refreshed", mod.Title));
         }
         catch (Exception ex)
         {
-            ShowError("Aktualisieren fehlgeschlagen:\n" + ex.Message);
-            SetStatus("Aktualisieren fehlgeschlagen.");
+            ShowError(Loc.T("RefreshFailed", ex.Message));
+            SetStatus(Loc.T("RefreshFailedStatus"));
         }
     }
 
@@ -551,7 +580,7 @@ public partial class MainWindow : Window
     {
         if (EntryOf(sender) is not { } mod) return;
         Clipboard.SetText($"STEAMMOD={mod.Id}");
-        SetStatus($"„STEAMMOD={mod.Id}“ in die Zwischenablage kopiert.");
+        SetStatus(Loc.T("Copied", mod.Id));
     }
 
     private void MenuMoveUp_Click(object sender, RoutedEventArgs e) => Move(EntryOf(sender), -1);
@@ -571,8 +600,7 @@ public partial class MainWindow : Window
     {
         if (EntryOf(sender) is not { IsSuggestion: false } mod) return;
         bool subscribed = SteamService.IsModDownloaded(_data.AppId, mod.Id) == true;
-        if (!Ask($"„{mod.Title}“ aus der Liste entfernen?\n\n(Die Mod selbst bleibt in Steam abonniert" +
-                 (subscribed ? " und wird nicht mehr automatisch hinzugefügt.)" : ".)"))) return;
+        if (!Ask(Loc.T(subscribed ? "RemoveConfirmSubscribed" : "RemoveConfirm", mod.Title))) return;
 
         _mods.Remove(mod);
         if (subscribed && !_data.RemovedSubscriptions.Contains(mod.Id))
@@ -585,6 +613,6 @@ public partial class MainWindow : Window
         }
         Persist();
         RebuildSuggestions();
-        SetStatus($"„{mod.Title}“ entfernt.");
+        SetStatus(Loc.T("Removed", mod.Title));
     }
 }

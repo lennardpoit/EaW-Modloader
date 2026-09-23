@@ -57,7 +57,10 @@ public class ModEntry : INotifyPropertyChanged
     public bool IsMissing => !_isDownloaded;
 
     [JsonIgnore]
-    public string HoverText => _isDownloaded ? "▶  STARTEN" : "IM WORKSHOP ABONNIEREN";
+    public string HoverText => Loc.T(_isDownloaded ? "TileStart" : "TileSubscribe");
+
+    /// <summary>Nach einem Sprachwechsel die sprachabhängigen Texte neu anzeigen.</summary>
+    public void RefreshTexts() => OnChanged(nameof(HoverText));
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -70,6 +73,9 @@ public class LauncherData
 {
     /// <summary>Steam-App-ID von Star Wars Empire at War: Gold Pack.</summary>
     public int AppId { get; set; } = 32470;
+
+    /// <summary>Sprache der Oberfläche: "en" (Standard) oder "de".</summary>
+    public string Language { get; set; } = "en";
 
     public List<ModEntry> Mods { get; set; } = new();
 
