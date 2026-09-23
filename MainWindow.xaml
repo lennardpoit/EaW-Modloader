@@ -214,12 +214,33 @@
             </Border.Background>
         </Border>
 
+        <!-- Hinweis auf neue Version -->
+        <Border x:Name="UpdateBanner" DockPanel.Dock="Top" Visibility="Collapsed" Background="#1F0A0D"
+                BorderBrush="{StaticResource Line}" BorderThickness="0,0,0,1" Padding="22,8">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock x:Name="UpdateText" VerticalAlignment="Center" Foreground="{StaticResource Fg}"
+                           FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
+                <Button x:Name="UpdateButton" Grid.Column="1" Content="JETZT AKTUALISIEREN" Padding="12,5"
+                        Style="{StaticResource FlatButton}" Click="UpdateNow_Click"/>
+                <Button Grid.Column="2" Content="Was ist neu?" Padding="12,5" Margin="8,0,0,0"
+                        Style="{StaticResource GhostButton}" Click="UpdateDetails_Click"/>
+                <Button x:Name="UpdateDismissButton" Grid.Column="3" Content="✕" Padding="10,5" Margin="8,0,0,0"
+                        Style="{StaticResource GhostButton}" Click="UpdateDismiss_Click" ToolTip="Später erinnern"/>
+            </Grid>
+        </Border>
+
         <!-- Statuszeile -->
         <Border DockPanel.Dock="Bottom" Background="Black" Padding="22,7"
                 BorderBrush="{StaticResource Line}" BorderThickness="0,1,0,0">
             <Grid>
                 <TextBlock x:Name="StatusText" Foreground="{StaticResource Muted}" FontSize="12"
-                           TextTrimming="CharacterEllipsis" Margin="0,0,90,0"
+                           TextTrimming="CharacterEllipsis" Margin="0,0,250,0"
                            Text="Bereit. Klick auf eine Kachel startet die Mod, Rechtsklick für weitere Optionen."/>
                 <TextBlock x:Name="CountText" Foreground="{StaticResource Muted}" FontSize="12"
                            HorizontalAlignment="Right"/>

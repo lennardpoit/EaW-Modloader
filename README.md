@@ -1,4 +1,4 @@
-# EaW Mod-Launcher
+﻿# EaW Mod-Launcher
 
 Ein einfacher Mod-Launcher für **Star Wars: Empire at War – Forces of Corruption** (Steam-Version).
 Alle abonnierten Workshop-Mods erscheinen als Kacheln mit Vorschaubild. Ein Klick startet das Spiel mit der
@@ -14,6 +14,7 @@ gewählten Mod, ganz ohne Rechtsklick → Eigenschaften → Startoptionen in Ste
 - **Mods per ID hinzufügen:** Workshop-ID oder Link einfügen, Name und Bild werden automatisch geladen.
 - **Offline-fähig:** Namen und Vorschaubilder werden lokal zwischengespeichert.
 - Startet Steam bei Bedarf automatisch im Hintergrund.
+- **Automatische Updates:** Zeigt neue Versionen an und installiert sie mit einem Klick.
 
 ## Download
 
@@ -49,6 +50,12 @@ Steams eigene Startoption für das Gold Pack startet das Hauptspiel. Der Launche
 `steam_appid.txt` meldet sich das Spiel selbst bei Steam an und lädt die Workshop-Mod. Die Startoptionen im
 Steam-Client werden dabei nicht verwendet.
 
+### Updates
+
+Beim Start prüft der Launcher, ob es auf GitHub eine neuere Version gibt. Wenn ja, erscheint oben ein Hinweis.
+**Jetzt aktualisieren** lädt die neue Version herunter, ersetzt die alte `.exe` und startet den Launcher neu.
+Die installierte Version steht unten rechts in der Statuszeile.
+
 ### Gespeicherte Daten
 
 `%APPDATA%\EaWModLauncher\` enthält `mods.json` (Mod-Liste und Einstellungen) und `images\` (Vorschaubilder).
@@ -64,6 +71,15 @@ dotnet publish -c Release
 
 Erzeugt `EaWModLauncher.exe` im Projektordner. Das Programm-Icon liegt in `Assets\app.ico`, die Liste der
 vorgeschlagenen Mods steht in `Suggestions.cs`.
+
+### Neue Version veröffentlichen
+
+1. In `EaWModLauncher.csproj` die `<Version>` erhöhen, z. B. `1.0.0` → `1.1.0`.
+2. `dotnet publish -c Release` ausführen.
+3. Auf GitHub ein neues Release anlegen: Tag **`v1.1.0`** (passend zur Version, mit `v` davor) und die Datei
+   **`EaWModLauncher.exe`** unter genau diesem Namen anhängen.
+
+Alle installierten Launcher zeigen die neue Version beim nächsten Start an.
 
 ## Rechtliches
 
@@ -85,7 +101,7 @@ MIT, siehe [LICENSE](LICENSE).
 
 A simple mod launcher for **Star Wars: Empire at War – Forces of Corruption** (Steam). All subscribed Workshop
 mods show up as tiles with preview images. One click launches the game with that mod (`STEAMMOD=<id>`), with no
-need to edit launch options in Steam. It also suggests popular Workshop mods and lets you add mods by ID or link.
+need to edit launch options in Steam. It also suggests popular Workshop mods, lets you add mods by ID or link, and updates itself with one click when a new version is released.
 
 **Download:** get the latest `EaWModLauncher.exe` from **[Releases](../../releases)** and run it. No installation or
 .NET runtime required. If Windows SmartScreen appears, click *More info → Run anyway*.

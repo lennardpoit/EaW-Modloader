@@ -67,8 +67,57 @@ public partial class MainWindow : Window
         LogoFallback.Visibility = logo == null ? Visibility.Visible : Visibility.Collapsed;
         Resources["EmblemImage"] = emblem;
 
+        _ = UpdateService.CleanupAsync();
+        _ = CheckForUpdateAsync();
         await LoadMissingDetailsAsync();
     }
+
+    // ---------- Updates ----------
+
+    private UpdateInfo? _update;
+
+    private async Task CheckForUpdateAsync()
+    {
+        _update = await UpdateService.CheckAsync();
+        if (_update == null) return;
+
+        UpdateText.Text = $"Neue Version {_update.Version.ToString(3)} verfügbar " +
+                          $"(installiert: {UpdateService.CurrentVersion.ToString(3)}).";
+        UpdateButton.Visibility = _update.DownloadUrl.Length > 0 ? Visibility.Visible : Visibility.Collapsed;
+        UpdateBanner.Visibility = Visibility.Visible;
+    }
+
+    private async void UpdateNow_Click(object sender, RoutedEventArgs e)
+    {
+        if (_update == null) return;
+        UpdateButton.IsEnabled = false;
+        UpdateDismissButton.IsEnabled = false;
+        var version = _update.Version.ToString(3);
+        try
+        {
+            await UpdateService.InstallAsync(_update,
+                new Progress<double>(p => UpdateText.Text = $"Lade Version {version} herunter … {p:P0}"));
+            UpdateText.Text = $"Version {version} installiert – Neustart …";
+            Application.Current.Shutdown();
+        }
+        catch (Exception ex)
+        {
+            UpdateText.Text = $"Neue Version {version} verfügbar.";
+            UpdateButton.IsEnabled = true;
+            UpdateDismissButton.IsEnabled = true;
+            if (Ask($"Das automatische Update ist fehlgeschlagen:\n{ex.Message}\n\n" +
+                    "Download-Seite im Browser öffnen, um die neue Version von Hand herunterzuladen?"))
+                UpdateService.OpenPage(_update.PageUrl);
+        }
+    }
+
+    private void UpdateDetails_Click(object sender, RoutedEventArgs e)
+    {
+        if (_update != null) UpdateService.OpenPage(_update.PageUrl);
+    }
+
+    private void UpdateDismiss_Click(object sender, RoutedEventArgs e) =>
+        UpdateBanner.Visibility = Visibility.Collapsed;
 
     /// <summary>Nach dem Wechsel zurück ins Fenster prüfen, ob inzwischen Mods abonniert wurden.</summary>
     private async void Window_Activated(object? sender, EventArgs e)
@@ -150,7 +199,7 @@ public partial class MainWindow : Window
     private void UpdateCounts()
     {
         OwnEmptyHint.Visibility = _mods.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
-        CountText.Text = $"{_mods.Count} eigene · {_suggestions.Count} vorgeschlagen";
+        CountText.Text = $"{_mods.Count} eigene · {_suggestions.Count} vorgeschlagen · v{UpdateService.CurrentVersion.ToString(3)}";
     }
 
     private bool _loadingDetails, _detailsRequested;
