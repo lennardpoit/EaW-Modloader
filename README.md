@@ -62,17 +62,18 @@ Benötigt das [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0).
 dotnet publish -c Release
 ```
 
-Erzeugt `EaWModLauncher.exe` im Projektordner. Ein eigenes Programm-Icon kann als `Assets\app.ico` abgelegt
-werden. Die Liste der vorgeschlagenen Mods steht in `Suggestions.cs`.
+Erzeugt `EaWModLauncher.exe` im Projektordner. Das Programm-Icon liegt in `Assets\app.ico`, die Liste der
+vorgeschlagenen Mods steht in `Suggestions.cs`.
 
 ## Rechtliches
 
 Dies ist ein inoffizielles Fan-Projekt. Es steht in keiner Verbindung zu Lucasfilm, Disney, LucasArts,
 Petroglyph oder Valve. STAR WARS, Empire at War und Forces of Corruption sind Marken von Lucasfilm Ltd.
 
-Der Launcher enthält **keine Grafiken oder Dateien des Spiels**. Logo, Emblem und Fenster-Icon werden zur
-Laufzeit aus der lokalen Spielinstallation bzw. aus Steam gelesen. Mod-Namen und Vorschaubilder stammen aus dem
-Steam Workshop und gehören den jeweiligen Mod-Autoren.
+Das Programm-Icon (`Assets/app.ico`) ist das offizielle Steam-Icon von *Star Wars: Empire at War* und gehört
+Lucasfilm Ltd. Weitere Grafiken des Spiels sind nicht enthalten: Logo und Emblem werden zur Laufzeit aus der
+lokalen Spielinstallation gelesen. Mod-Namen und Vorschaubilder stammen aus dem Steam Workshop und gehören den
+jeweiligen Mod-Autoren.
 
 ## Lizenz
 
@@ -92,5 +93,6 @@ need to edit launch options in Steam. It also suggests popular Workshop mods and
 **Requirements:** Windows 10/11 (64-bit), Steam, *STAR WARS™ Empire at War: Gold Pack*.
 
 The user interface is currently in German. Unofficial fan project, not affiliated with Lucasfilm, Disney,
-LucasArts, Petroglyph or Valve. No game assets are included; logo and icons are read from your local game
-installation at runtime. Licensed under MIT.
+LucasArts, Petroglyph or Valve. The program icon is the official Steam icon of the game (© Lucasfilm Ltd.); no
+other game assets are included, logo and emblem are read from your local game installation at runtime.
+Code licensed under MIT.

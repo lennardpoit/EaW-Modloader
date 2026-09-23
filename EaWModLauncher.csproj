@@ -13,10 +13,13 @@
     <Version>1.0.0</Version>
   </PropertyGroup>
 
-  <!-- Optional: eigenes Programm-Icon. Einfach als Assets\app.ico ablegen. -->
+  <!-- Programm-Icon (Explorer, Taskleiste und Fenster). -->
   <PropertyGroup Condition="Exists('Assets\app.ico')">
     <ApplicationIcon>Assets\app.ico</ApplicationIcon>
   </PropertyGroup>
+  <ItemGroup Condition="Exists('Assets\app.ico')">
+    <Resource Include="Assets\app.ico" />
+  </ItemGroup>
 
   <!--
     "dotnet publish -c Release" erzeugt eine einzelne EaWModLauncher.exe im Projektordner.

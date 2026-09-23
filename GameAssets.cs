@@ -42,9 +42,21 @@ public static class GameAssets
         }
     }
 
-    /// <summary>Offizielles Steam-Icon des Spiels, ersatzweise das Icon aus swfoc.exe.</summary>
+    /// <summary>
+    /// Fenster-Icon: das eingebettete Programm-Icon (Assets\app.ico), sonst Steams Icon des Spiels,
+    /// sonst das Icon aus swfoc.exe.
+    /// </summary>
     public static ImageSource? LoadIcon(int appId)
     {
+        try
+        {
+            var embedded = Application.GetResourceStream(new Uri("pack://application:,,,/Assets/app.ico"));
+            if (embedded != null)
+                using (embedded.Stream)
+                    return BitmapFrame.Create(embedded.Stream, BitmapCreateOptions.None, BitmapCacheOption.OnLoad);
+        }
+        catch (IOException) { } // nicht eingebettet (ohne Assets\app.ico gebaut)
+
         try
         {
             var steamDir = SteamService.FindSteamDir();
