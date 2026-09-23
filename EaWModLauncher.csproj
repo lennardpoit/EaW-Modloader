@@ -10,7 +10,7 @@
     <RootNamespace>EaWModLauncher</RootNamespace>
     <Product>EaW Mod-Launcher</Product>
     <Description>Mod-Launcher für Star Wars: Empire at War – Forces of Corruption (Steam)</Description>
-    <Version>1.0.0</Version>
+    <Version>1.0.1</Version>
   </PropertyGroup>
 
   <!-- Programm-Icon (Explorer, Taskleiste und Fenster). -->
