@@ -16,7 +16,7 @@ gewählten Mod, ganz ohne Rechtsklick → Eigenschaften → Startoptionen in Ste
 - Startet Steam bei Bedarf automatisch im Hintergrund.
 - **Automatische Updates:** Zeigt neue Versionen an und installiert sie mit einem Klick.
 
-## [Download](https://github.com/lennardpoit/EaW-Modloader/releases/latest/download/EaWModLauncher.exe)
+## Download
 
 1. Unter **[Releases](../../releases)** die neueste `EaWModLauncher.exe` herunterladen.
 2. In einen beliebigen Ordner legen und starten. Eine Installation ist nicht nötig.
