@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AssemblyName>EaWModLauncher</AssemblyName>
+    <RootNamespace>EaWModLauncher</RootNamespace>
+    <Product>EaW Mod-Launcher</Product>
+    <Description>Mod-Launcher für Star Wars: Empire at War – Forces of Corruption (Steam)</Description>
+    <Version>1.0.0</Version>
+  </PropertyGroup>
+
+  <!-- Optional: eigenes Programm-Icon. Einfach als Assets\app.ico ablegen. -->
+  <PropertyGroup Condition="Exists('Assets\app.ico')">
+    <ApplicationIcon>Assets\app.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <!--
+    "dotnet publish -c Release" erzeugt eine einzelne EaWModLauncher.exe im Projektordner.
+    Sie enthält die .NET-Laufzeit und läuft ohne Installation auf jedem Windows 10/11 (64 Bit).
+  -->
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <SelfContained>true</SelfContained>
+    <PublishSingleFile>true</PublishSingleFile>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+    <DebugType>none</DebugType>
+    <PublishDir>$(MSBuildProjectDirectory)\</PublishDir>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="EaWModLauncher.exe" />
+  </ItemGroup>
+
+</Project>

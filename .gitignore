@@ -1,0 +1,16 @@
+# Build-Ausgaben
+bin/
+obj/
+/EaWModLauncher.exe
+*.pdb
+
+# Visual Studio / Rider / VS Code
+.vs/
+.idea/
+.vscode/
+*.user
+*.suo
+
+# Grafiken des Spiels gehören nicht ins Repository (werden zur Laufzeit aus der Spielinstallation geladen)
+*.dds
+*.meg
