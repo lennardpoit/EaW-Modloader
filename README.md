@@ -17,7 +17,7 @@ gewählten Mod, ganz ohne Rechtsklick → Eigenschaften → Startoptionen in Ste
 - **Automatische Updates:** Zeigt neue Versionen an und installiert sie mit einem Klick.
 - **Englisch und Deutsch:** Umschalten per Flagge oben rechts, Standard ist Englisch.
 
-## Download
+## [Download](https://github.com/lennardpoit/EaW-Modloader/releases/latest/download/EaWModLauncher.exe)
 
 1. Unter **[Releases](../../releases)** die neueste `EaWModLauncher.exe` herunterladen.
 2. In einen beliebigen Ordner legen und starten. Eine Installation ist nicht nötig.
